@@ -4,9 +4,15 @@ import editor "pacuare.dev/dash/templates/components/editor"
 
 templ Index() {
 	@layout("Pacuare Reserve") {
-		<h1>Hi</h1>
-		@editor.Editor()
-
+		<nav class="flex flex-row gap-3 p-3">
+			<div class="rounded border border-red-600 bg-red-100/0.5 flex-1">
+				Full access
+			</div>
+		</nav>
+		<div class="flex flex-row gap-6 p-6">
+			@editor.Editor()
+			<table class="flex-1" id="resultsTable"></table>
+		</div>
 		<script src="/public/components/editor.js" type="module"></script>
 	}
 }

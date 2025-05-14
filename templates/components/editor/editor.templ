@@ -1,51 +1,24 @@
 package components
 
-css editor() {
-	flex: 1;
-    position: relative;
-    resize: both;
-    min-height: 100px;
-}
-
-css textarea() {
-    position: absolute;
-    font-family: monospace;
-    background-color: transparent;
-    top: 0;
-    z-index: 0;
-    height: 100%;
-    width: 100%;
-    resize: none;
-    font-size: 14pt;
-    padding: 4px;
-}
-
-css overlay() {
-    position: absolute;
-    pointer-events: none;
-    font-family: monospace;
-    top: 0;
-    z-index: 1;
-    font-size: 14pt;
-    margin: 0;
-    padding: 4px;
-}
-
-css languages() {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-}
+import "pacuare.dev/dash/components/card"
+import "pacuare.dev/dash/components/button"
 
 var editorHandle = templ.NewOnceHandle()
 
 templ Editor() {
-	<div class={editor()} data-component="editor">
-    	<textarea class={textarea()} data-editor="editor"/>
-      	<pre class={overlay()} data-editor="overlay"><code></code></pre>
-       	<select class={languages()} data-editor="language">
-        	<option value="sql">SQL</option>
-         	<option value="python">Python</option>
-        </select>
-	</div>
+	@card.Card(card.Props{Attributes: map[string]any{"data-component": "editor"}}) {
+		@card.Header(card.HeaderProps{Class: "flex flex-row justify-between p-2 gap-2"}) {
+			<select data-editor="language" style="block">
+				<option value="sql">SQL</option>
+				<option value="python">Python</option>
+			</select>
+			@button.Button(button.Props{Class: "block"}) {
+				Hello
+			}
+		}
+		@card.Content() {
+			<textarea data-editor="editor"></textarea>
+			<pre data-editor="overlay"><code></code></pre>
+		}
+	}
 }
