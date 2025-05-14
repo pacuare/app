@@ -2,23 +2,24 @@ package components
 
 import "pacuare.dev/dash/components/card"
 import "pacuare.dev/dash/components/button"
+import "pacuare.dev/dash/components/textarea"
 
 var editorHandle = templ.NewOnceHandle()
 
 templ Editor() {
-	@card.Card(card.Props{Attributes: map[string]any{"data-component": "editor"}}) {
+	@card.Card(card.Props{Class: "flex flex-col h-full", Attributes: map[string]any{"data-component": "editor"}}) {
 		@card.Header(card.HeaderProps{Class: "flex flex-row justify-between p-2 gap-2"}) {
-			<select data-editor="language" style="block">
+			<select data-editor="language" class="block border p-2 rounded-md">
 				<option value="sql">SQL</option>
 				<option value="python">Python</option>
 			</select>
-			@button.Button(button.Props{Class: "block"}) {
-				Hello
+			@button.Button(button.Props{Class: "block", Attributes: map[string]any{"data-editor": "run"}}) {
+				Run
 			}
 		}
-		@card.Content() {
-			<textarea data-editor="editor"></textarea>
-			<pre data-editor="overlay"><code></code></pre>
+		@card.Content(card.ContentProps{Class: "flex-1 relative"}) {
+			@textarea.Textarea(textarea.Props{Class: "absolute text-transparent caret-black font-mono text-base h-[calc(100%-(var(--spacing)*12))] w-[calc(100%-(var(--spacing)*12))] resize-none box-border", Attributes: templ.Attributes{"data-editor": "editor"}})
+			<pre data-editor="overlay" class="absolute font-mono pointer-events-none text-base py-2 px-3 h-[calc(100%-(var(--spacing)*12))] max-w-[calc(100%-(var(--spacing)*12))] whitespace-pre-wrap wrap-break-word border border-transparent"><code class="max-w-[calc(100%-(var(--spacing)*12))] overflow-clip wrap-break-word"></code></pre>
 		}
 	}
 }

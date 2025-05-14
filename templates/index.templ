@@ -1,17 +1,24 @@
 package templates
 
+import "pacuare.dev/dash/components/table"
+import "pacuare.dev/dash/components/card"
+import "pacuare.dev/dash/components/alert"
+
 import editor "pacuare.dev/dash/templates/components/editor"
 
 templ Index() {
 	@layout("Pacuare Reserve") {
 		<nav class="flex flex-row gap-3 p-3">
-			<div class="rounded border border-red-600 bg-red-100/0.5 flex-1">
-				Full access
-			</div>
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {Full access}
 		</nav>
-		<div class="flex flex-row gap-6 p-6">
+		<div class="flex flex-1 flex-row gap-6 p-6">
 			@editor.Editor()
-			<table class="flex-1" id="resultsTable"></table>
+			
+			@card.Card() {
+				@table.Table(table.Props{ID: "resultsTable"}) {
+
+				}
+			}
 		</div>
 		<script src="/public/components/editor.js" type="module"></script>
 	}

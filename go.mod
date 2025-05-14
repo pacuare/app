@@ -5,6 +5,7 @@ go 1.24.3
 tool (
 	github.com/a-h/templ/cmd/templ
 	github.com/air-verse/air
+	github.com/axzilla/templui/cmd/templui
 )
 
 require (
@@ -14,6 +15,7 @@ require (
 	github.com/a-h/templ v0.3.865 // indirect
 	github.com/air-verse/air v1.61.7 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/axzilla/templui v0.70.0 // indirect
 	github.com/bep/godartsass v1.2.0 // indirect
 	github.com/bep/godartsass/v2 v2.1.0 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
