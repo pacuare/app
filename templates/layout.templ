@@ -1,0 +1,15 @@
+package templates
+import "pacuare.dev/dash/templates/components"
+
+templ layout(title string) {
+	<html>
+		<head>
+			<title>{ title }</title>
+			<link rel="stylesheet" href="/public/vendor/prism/prism.css">
+			@components.ImportMap()
+		</head>
+		<body>
+			{ children... }
+		</body>
+	</html>
+}

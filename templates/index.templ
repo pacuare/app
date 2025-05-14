@@ -1,0 +1,12 @@
+package templates
+
+import editor "pacuare.dev/dash/templates/components/editor"
+
+templ Index() {
+	@layout("Pacuare Reserve") {
+		<h1>Hi</h1>
+		@editor.Editor()
+
+		<script src="/public/components/editor.js" type="module"></script>
+	}
+}

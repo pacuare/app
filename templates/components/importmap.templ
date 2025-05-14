@@ -1,0 +1,15 @@
+package components
+
+var importmapHandle = templ.NewOnceHandle()
+
+templ ImportMap() {
+	@importmapHandle.Once() {
+		<script type="importmap">
+			{
+			    "imports": {
+					"prismjs": "/public/vendor/prism/prism.js"
+				}
+			}
+		</script>
+	}
+}
