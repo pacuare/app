@@ -3,7 +3,7 @@
   "provider": "golang",
   "steps": {
     "build": {
-      "inputs": [{ "step": "install" }],
+      "inputs": [{ "step": "install" }, { "local": true, "include": ["."] }],
       "commands": ["go tool templ generate", "..."]
     }
   }
