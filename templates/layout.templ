@@ -1,13 +1,14 @@
 package templates
-import "pacuare.dev/dash/templates/components"
-import "pacuare.dev/dash/templates/styles"
+import "dash.pacuare.dev/components/importmap"
+import "dash.pacuare.dev/components/styles"
 
 templ layout(title string) {
+	<!doctype html>
 	<html>
 		<head>
 			<title>{ title }</title>
 			@styles.Global()
-			@components.ImportMap()
+			@importmap.ImportMap()
 		</head>
 		<body>
 			<main>

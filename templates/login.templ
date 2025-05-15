@@ -1,0 +1,39 @@
+package templates
+
+import "dash.pacuare.dev/components/card"
+import "dash.pacuare.dev/components/form"
+import "dash.pacuare.dev/components/input"
+import "dash.pacuare.dev/components/button"
+
+templ Login() {
+    @layout("Log In") {
+        @card.Card(card.Props{Class: "self-center justify-self-center max-w-md mx-auto"}) {
+            @card.Header() {
+                <h1 class="text-center text-2xl font-bold">Log In</h1>
+            }
+            @card.Content() {
+                <form action="/auth/verify">
+                    @form.Item() {
+                        @form.Label(form.LabelProps{For: "email"}) {
+                            Email
+                        }
+                        @input.Input(input.Props{
+                            ID: "email",
+                            Name: "email",
+                            Type: input.TypeEmail,
+                            Placeholder: "me@pacuare.dev",
+                            HasError: true,
+                        })
+                        @form.Description() {
+                            A confirmation code will be sent to your email.
+                        }
+                    }
+
+                    @form.Item() {
+                        @button.Button(button.Props{Class: "mt-2 block w-full", Type: button.TypeSubmit}) {Log In}
+                    }
+                </form>
+            }
+        }
+    }
+}

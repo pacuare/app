@@ -1,15 +1,19 @@
 package templates
 
-import "pacuare.dev/dash/components/table"
-import "pacuare.dev/dash/components/card"
-import "pacuare.dev/dash/components/alert"
+import "dash.pacuare.dev/components/table"
+import "dash.pacuare.dev/components/card"
+import "dash.pacuare.dev/components/alert"
+import "dash.pacuare.dev/components/icon"
 
-import editor "pacuare.dev/dash/templates/components/editor"
+import "dash.pacuare.dev/components/editor"
 
 templ Index() {
 	@layout("Pacuare Reserve") {
 		<nav class="flex flex-row gap-3 p-3">
-			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {Full access}
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@icon.ShieldAlert()
+				Full access
+			}
 		</nav>
 		<div class="flex flex-1 flex-row gap-6 p-6">
 			@editor.Editor()
