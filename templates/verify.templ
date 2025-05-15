@@ -1,0 +1,46 @@
+package templates
+
+import "app.pacuare.dev/components/form"
+import "app.pacuare.dev/components/inputotp"
+
+templ Verify(email string) {
+    @loginLayout("POST", "") {
+        @form.Item(form.ItemProps{Class: "flex flex-col items-center"}) {
+            @form.Label(form.LabelProps{
+                For: "otp",
+            }) {
+                Verification Code
+            }
+            @inputotp.InputOTP(inputotp.Props{
+                ID:       "otp",
+                Required: true,
+                HasError: true,
+            }) {
+                @inputotp.Group() {
+                    @inputotp.Slot(inputotp.SlotProps{
+                        Index: 0,
+                    })
+                    @inputotp.Slot(inputotp.SlotProps{
+                        Index: 1,
+                    })
+                    @inputotp.Slot(inputotp.SlotProps{
+                        Index: 2,
+                    })
+                    @inputotp.Separator()
+                    @inputotp.Slot(inputotp.SlotProps{
+                        Index: 3,
+                    })
+                    @inputotp.Slot(inputotp.SlotProps{
+                        Index: 4,
+                    })
+                    @inputotp.Slot(inputotp.SlotProps{
+                        Index: 5,
+                    })
+                }
+            }
+            @form.Description() {
+                Enter the 6-digit code sent to {email}
+            }
+        }
+    }
+}

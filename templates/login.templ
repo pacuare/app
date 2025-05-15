@@ -1,38 +1,32 @@
 package templates
 
-import "app.pacuare.dev/components/card"
 import "app.pacuare.dev/components/form"
 import "app.pacuare.dev/components/input"
-import "app.pacuare.dev/components/button"
+import "app.pacuare.dev/components/alert"
+import "app.pacuare.dev/components/icon"
 
-templ Login() {
-    @layout("Log In") {
-        @card.Card(card.Props{Class: "self-center justify-self-center max-w-md mx-auto"}) {
-            @card.Header() {
-                <h1 class="text-center text-2xl font-bold">Log In</h1>
+templ Login(failedEmail *string) {
+    @loginLayout("GET", "/auth/verify") {
+        if failedEmail != nil {
+            @alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "mb-3"}) {
+                @icon.OctagonAlert()
+                <b>Could not find the user {*failedEmail}.</b>
+                For more information on getting an account, please see the <a href="//pacuare.dev/docs/accounts">documentation</a>.
             }
-            @card.Content() {
-                <form action="/auth/verify">
-                    @form.Item() {
-                        @form.Label(form.LabelProps{For: "email"}) {
-                            Email
-                        }
-                        @input.Input(input.Props{
-                            ID: "email",
-                            Name: "email",
-                            Type: input.TypeEmail,
-                            Placeholder: "me@pacuare.dev",
-                            HasError: true,
-                        })
-                        @form.Description() {
-                            A confirmation code will be sent to your email.
-                        }
-                    }
-
-                    @form.Item() {
-                        @button.Button(button.Props{Class: "mt-2 block w-full", Type: button.TypeSubmit}) {Log In}
-                    }
-                </form>
+        }
+        @form.Item() {
+            @form.Label(form.LabelProps{For: "email"}) {
+                Email
+            }
+            @input.Input(input.Props{
+                ID: "email",
+                Name: "email",
+                Type: input.TypeEmail,
+                Placeholder: "me@pacuare.dev",
+                HasError: true,
+            })
+            @form.Description() {
+                A confirmation code will be sent to your email.
             }
         }
     }
