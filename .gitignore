@@ -2,3 +2,4 @@ out
 **/*_templ.go
 tmp
 public/output.css
+.env
