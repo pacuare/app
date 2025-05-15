@@ -3,7 +3,7 @@ package auth
 import (
 	"net/http"
 
-	"dash.pacuare.dev/templates"
+	"app.pacuare.dev/templates"
 	"github.com/a-h/templ"
 )
 

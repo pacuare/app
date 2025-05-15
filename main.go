@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"dash.pacuare.dev/api"
-	"dash.pacuare.dev/templates"
+	"app.pacuare.dev/api"
+	"app.pacuare.dev/templates"
 )
 
 func main() {

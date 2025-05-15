@@ -1,4 +1,4 @@
-module dash.pacuare.dev
+module app.pacuare.dev
 
 go 1.24.3
 

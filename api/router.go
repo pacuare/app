@@ -1,6 +1,6 @@
 package api
 
-import "dash.pacuare.dev/api/auth"
+import "app.pacuare.dev/api/auth"
 
 func Mount() {
 	auth.Mount()
