@@ -1,11 +1,11 @@
 package mailer
 
 import (
+	"context"
 	"fmt"
-	"math/rand"
 	"os"
-	"strconv"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/resend/resend-go/v2"
 )
 
@@ -24,8 +24,15 @@ func init() {
 	client = resend.NewClient(apiKey)
 }
 
-func SendConfirmation(email string) (*Confirmation, error) {
-	code := strconv.FormatInt(rand.Int63n(199999), 10)
+func SendConfirmation(conn *pgx.Conn, email string) (*Confirmation, error) {
+	var code string
+	err := conn.
+		QueryRow(context.Background(), "select MakeVerificationCode($1)", email).
+		Scan(&code)
+
+	if err != nil {
+		return nil, err
+	}
 
 	sent, err := client.Emails.Send(&resend.SendEmailRequest{
 		From:    "Pacuare Reserve <support@farthergate.com>",

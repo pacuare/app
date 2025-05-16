@@ -13,6 +13,7 @@ templ Verify(email string) {
             }
             @inputotp.InputOTP(inputotp.Props{
                 ID:       "otp",
+                Name:     "otp",
                 Required: true,
                 HasError: true,
             }) {

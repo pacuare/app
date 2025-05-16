@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"app.pacuare.dev/api"
+	"app.pacuare.dev/shared"
 	"app.pacuare.dev/templates"
 	"github.com/charmbracelet/log"
 	"github.com/jackc/pgx/v5"
@@ -18,14 +19,16 @@ func main() {
 		log.Fatal("Failed to connect to database")
 	}
 	log.Info("Connected")
+	shared.DB = conn
 	defer conn.Close(context.Background())
 
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
-	api.Mount(conn)
+	api.Mount()
 	http.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		_, err := r.Cookie("authstatus")
+		_, err := r.Cookie("AuthStatus")
 
 		if err != nil {
+			log.Error(err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		} else {
 			templates.Index().Render(r.Context(), w)

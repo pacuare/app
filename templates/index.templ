@@ -6,6 +6,7 @@ import "app.pacuare.dev/components/alert"
 import "app.pacuare.dev/components/icon"
 
 import "app.pacuare.dev/components/editor"
+import "app.pacuare.dev/components/button"
 
 templ Index() {
 	@layout("Pacuare Reserve") {
@@ -13,6 +14,15 @@ templ Index() {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
 				@icon.ShieldAlert()
 				Full access
+			}
+			@button.Button(button.Props{
+				Variant: button.VariantOutline,
+				Attributes: templ.Attributes{"title": "Log Out"},
+				Class: "block flex items-center justify-center h-full",
+				Size: button.SizeIcon,
+				Href: "/auth/logout",
+			}) {
+				@icon.LogOut(icon.Props{Size: 16})
 			}
 		</nav>
 		<div class="flex flex-1 flex-row gap-6 p-6">
