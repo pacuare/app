@@ -7,18 +7,28 @@ import "app.pacuare.dev/components/icon"
 
 import "app.pacuare.dev/components/editor"
 import "app.pacuare.dev/components/button"
+import . "github.com/icza/gox/gox"
 
-templ Index() {
+templ Index(email string, fullAccess bool) {
 	@layout("Pacuare Reserve") {
 		<nav class="flex flex-row gap-3 p-3">
-			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
-				@icon.ShieldAlert()
-				Full access
+			@alert.Alert(alert.Props{
+				Variant: If(fullAccess, alert.VariantDestructive, alert.VariantDefault), 
+				Class: If(!fullAccess, "border-emerald-700 text-emerald-700", ""),
+			}) {
+				if fullAccess {
+					@icon.ShieldAlert()
+					Full access
+				} else {
+					@icon.ShieldCheck()
+					Restricted access
+				}
+				- {email}
 			}
 			@button.Button(button.Props{
 				Variant: button.VariantOutline,
 				Attributes: templ.Attributes{"title": "Log Out"},
-				Class: "block flex items-center justify-center h-full",
+				Class: "flex items-center justify-center h-full",
 				Size: button.SizeIcon,
 				Href: "/auth/logout",
 			}) {

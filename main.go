@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"net/http"
 	"os"
 
@@ -25,13 +26,37 @@ func main() {
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	api.Mount()
 	http.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		_, err := r.Cookie("AuthStatus")
+		authStatus, err := r.Cookie("AuthStatus")
+
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			return
+		}
+
+		authBytes, err := hex.DecodeString(authStatus.Value)
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		}
+		email, err := shared.Decrypt(authBytes)
 
 		if err != nil {
 			log.Error(err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		} else {
-			templates.Index().Render(r.Context(), w)
+			var fullAccess bool
+
+			err = conn.
+				QueryRow(context.Background(), "select fullAccess from AuthorizedUsers where email=$1", email).
+				Scan(&fullAccess)
+
+			if err != nil {
+				log.Error(err)
+				http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			}
+
+			templates.Index(string(email), fullAccess).Render(r.Context(), w)
 		}
 	})
 
