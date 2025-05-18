@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -38,9 +39,54 @@ func main() {
 		if err != nil {
 			log.Error(err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			return
+		}
+
+		if !fullAccess {
+			if databaseExists, err :=
+				shared.QueryOne[bool]("select count(*)>0 from pg_catalog.pg_database where datname = GetUserDatabase($1)", email); !databaseExists || err != nil {
+				http.Redirect(w, r, "/createdb", http.StatusSeeOther)
+				if err != nil {
+					log.Error(err)
+				}
+				return
+			}
 		}
 
 		templates.Index(*email, fullAccess).Render(r.Context(), w)
+	})
+
+	http.HandleFunc("GET /createdb", func(w http.ResponseWriter, r *http.Request) {
+		email, err := shared.GetUser(r)
+
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			return
+		}
+
+		if databaseExists, _ :=
+			shared.QueryOne[bool]("select count(*)>0 from pg_catalog.pg_database where datname = GetUserDatabase($1)", email); databaseExists {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		templates.CreateDB(*email).Render(r.Context(), w)
+		_, err = shared.DB.Exec(context.Background(), fmt.Sprintf("create database %s", shared.GetUserDatabase(*email)))
+
+		if err != nil {
+			log.Error(err)
+		}
+
+		db, err := shared.QueryOne[string]("select InitUserDatabase($1, $2, $3)", os.Getenv("DATABASE_URL_BASE"), os.Getenv("DATABASE_DATA"), *email)
+
+		if err != nil {
+			log.Error(err)
+		}
+
+		log.Infof("Created database %s", db)
+
+		w.Write([]byte("<meta http-equiv=\"Refresh\" content=\"0;url=/\">"))
 	})
 
 	log.Info("Starting server on :8080")

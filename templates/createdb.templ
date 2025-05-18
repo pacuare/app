@@ -1,0 +1,18 @@
+package templates
+
+import "app.pacuare.dev/components/spinner"
+
+templ CreateDB(email string) {
+    @layout("Pacuare Reserve") {
+        <div class="flex flex-col w-full h-full p-2 items-center justify-center">
+            <h1 class="text-2xl font-bold">Welcome, {email}!</h1>
+            <div class="flex flex-row gap-2">
+                @spinner.Spinner(spinner.Props{
+                    Size: spinner.SizeSm,
+                })
+
+                <p>Initializing your database...</p>
+            </div>
+        </div>
+    }
+}

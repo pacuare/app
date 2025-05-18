@@ -57,7 +57,7 @@ func Mount() {
 		} else if fullAccess {
 			dbName = "pacuare_data"
 		} else {
-			dbName = fmt.Sprintf("user_%s", strings.ReplaceAll(strings.ReplaceAll(*email, "@", "__"), ".", "_"))
+			dbName = shared.GetUserDatabase(*email)
 
 		}
 

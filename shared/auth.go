@@ -2,7 +2,9 @@ package shared
 
 import (
 	"encoding/hex"
+	"fmt"
 	"net/http"
+	"strings"
 )
 
 func GetUser(r *http.Request) (*string, error) {
@@ -25,4 +27,8 @@ func GetUser(r *http.Request) (*string, error) {
 	emailStr := string(email)
 
 	return &emailStr, nil
+}
+
+func GetUserDatabase(email string) string {
+	return fmt.Sprintf("user_%s", strings.ReplaceAll(strings.ReplaceAll(email, "@", "__"), ".", "_"))
 }
