@@ -6,14 +6,14 @@ import "app.pacuare.dev/components/textarea"
 
 var editorHandle = templ.NewOnceHandle()
 
-templ Editor() {
-	@card.Card(card.Props{Class: "flex flex-col h-full", Attributes: map[string]any{"data-component": "editor"}}) {
+templ Editor(id string) {
+	@card.Card(card.Props{ID: id, Class: "flex flex-col h-full", Attributes: map[string]any{"data-component": "editor"}}) {
 		@card.Header(card.HeaderProps{Class: "flex flex-row justify-between p-2 gap-2"}) {
 			<select data-editor="language" class="block border p-2 rounded-md">
 				<option value="sql">SQL</option>
 				<option value="python">Python</option>
 			</select>
-			@button.Button(button.Props{Class: "block", Attributes: map[string]any{"data-editor": "run"}}) {
+			@button.Button(button.Props{Class: "block", Attributes: map[string]any{"data-editor": "run"}, ID: "run-query"}) {
 				Run
 			}
 		}

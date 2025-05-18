@@ -87,4 +87,20 @@
             "rlig" 1,
             "calt" 1;
     }
+
+    thead {
+        @apply [&_tr]:border-b;
+    }
+
+    th {
+        @apply h-10 px-2 text-left align-middle font-medium text-muted-foreground;
+    }
+
+    td {
+        @apply p-2 align-middle;
+    }
+
+    tr {
+        @apply border-b transition-colors hover:bg-muted/50;
+    }
 }

@@ -1,6 +1,6 @@
 import "prismjs";
 
-export function rerender(evt) {
+function rerender(evt) {
   const me = evt.target.closest("[data-component=editor]"),
     editor = me.querySelector("[data-editor=editor]"),
     overlay = me.querySelector("[data-editor=overlay]"),
@@ -11,6 +11,13 @@ export function rerender(evt) {
     Prism.languages[language.value],
     language.value,
   );
+}
+
+export function language(component) {
+  return component.querySelector("[data-editor=language]").value
+}
+export function query(component) {
+  return component.querySelector("[data-editor=editor]").value
 }
 
 window.addEventListener("DOMContentLoaded", () => {

@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"encoding/hex"
 	"fmt"
 	"net/http"
@@ -30,10 +29,7 @@ func Mount() {
 	http.HandleFunc("GET /auth/verify", func(w http.ResponseWriter, r *http.Request) {
 		email := r.URL.Query().Get("email")
 
-		var hasUser bool
-		err := conn.
-			QueryRow(context.Background(), "select (count(*) > 0) from AuthorizedUsers where email=$1", email).
-			Scan(&hasUser)
+		hasUser, err := shared.QueryOne[bool]("select (count(*) > 0) from AuthorizedUsers where email=$1", email)
 
 		if err != nil {
 			log.Error(err)
@@ -68,11 +64,7 @@ func Mount() {
 
 		log.Infof("%s %s", email, inputCode)
 
-		var code string
-
-		err = conn.
-			QueryRow(context.Background(), "select code from LoginCodes where email=$1", email).
-			Scan(&code)
+		code, err := shared.QueryOne[string]("select code from LoginCodes where email=$1", email)
 
 		if err != nil {
 			log.Error(err)

@@ -36,14 +36,14 @@ templ Index(email string, fullAccess bool) {
 			}
 		</nav>
 		<div class="flex flex-1 flex-row gap-6 p-6">
-			@editor.Editor()
+			@editor.Editor("query-editor")
 			
-			@card.Card() {
-				@table.Table(table.Props{ID: "resultsTable"}) {
-
-				}
+			@card.Card(card.Props{Class: "overflow-auto max-h-full"}) {
+				@alert.Alert(alert.Props{ID: "resultError", Class: "hidden m-2 w-[calc(100%-(var(--spacing)*4))]", Variant: alert.VariantDestructive})
+				@table.Table(table.Props{ID: "resultsTable", Class: "hidden max-h-full overflow-scroll"})
 			}
 		</div>
 		<script src="/public/components/editor.js" type="module"></script>
+		<script src="/public/js/index.js" type="module"></script>
 	}
 }
