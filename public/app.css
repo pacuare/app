@@ -10,6 +10,7 @@ body {
     width: 100vw;
     height: 100vh;
     display: flex;
+    overflow: hidden;
     font-family:
         system-ui,
         -apple-system,
@@ -28,6 +29,8 @@ body {
 main {
     width: 100vw;
     height: 100vh;
+    max-height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     padding: 16px;

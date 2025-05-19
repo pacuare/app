@@ -19,7 +19,7 @@ templ Editor(id string) {
 		}
 		@card.Content(card.ContentProps{Class: "flex-1 relative"}) {
 			@textarea.Textarea(textarea.Props{Class: "absolute text-transparent caret-black font-mono text-base h-[calc(100%-(var(--spacing)*12))] w-[calc(100%-(var(--spacing)*12))] resize-none box-border", Attributes: templ.Attributes{"data-editor": "editor"}})
-			<pre data-editor="overlay" class="absolute font-mono pointer-events-none text-base py-2 px-3 h-[calc(100%-(var(--spacing)*12))] max-w-[calc(100%-(var(--spacing)*12))] whitespace-pre-wrap wrap-break-word border border-transparent"><code class="max-w-[calc(100%-(var(--spacing)*12))] overflow-clip wrap-break-word"></code></pre>
+			<pre data-editor="overlay" class="absolute font-mono pointer-events-none text-base py-2 px-3 h-[calc(100%-(var(--spacing)*12))] max-w-[calc(100%-(var(--spacing)*12))] whitespace-pre-wrap wrap-break-word border border-transparent overflow-hidden"><code class="max-w-[calc(100%-(var(--spacing)*12))] overflow-clip wrap-break-word"></code></pre>
 		}
 	}
 }

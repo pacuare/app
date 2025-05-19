@@ -22,9 +22,20 @@ export function query(component) {
 
 window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-component=editor]").forEach((component) => {
-    component
-      .querySelector("[data-editor=editor]")
-      .addEventListener("input", rerender);
+    const textArea = component.querySelector("[data-editor=editor]");
+    const overlay = component.querySelector("[data-editor=overlay]");
+    textArea.addEventListener("input", rerender);
+
+    new ResizeObserver(() => {
+      overlay.style.width = textArea.offsetWidth + 'px';
+      overlay.style.height = textArea.offsetHeight + 'px';
+    }).observe(textArea);
+
+    textArea.addEventListener("scroll", e => {
+      overlay.scrollTop = textArea.scrollTop;
+      overlay.scrollLeft = textArea.scrollLeft;
+    });
+
     component
       .querySelector("[data-editor=language]")
       .addEventListener("change", rerender);
