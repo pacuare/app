@@ -3,6 +3,8 @@ package editor
 import "app.pacuare.dev/components/card"
 import "app.pacuare.dev/components/button"
 import "app.pacuare.dev/components/textarea"
+import "app.pacuare.dev/components/icon"
+import "app.pacuare.dev/components/tooltip"
 
 var editorHandle = templ.NewOnceHandle()
 
@@ -13,8 +15,15 @@ templ Editor(id string) {
 				<option value="sql">SQL</option>
 				<option value="python">Python</option>
 			</select>
-			@button.Button(button.Props{Class: "block", Attributes: map[string]any{"data-editor": "run"}, ID: "run-query"}) {
-				Run
+			@tooltip.Tooltip() {
+				@tooltip.Trigger(tooltip.TriggerProps{For: "run-tooltip"}) {
+					@button.Button(button.Props{Class: "block", Attributes: map[string]any{"data-editor": "run"}, ID: "run-query"}) {
+						@icon.Play(icon.Props{Size: 16})
+					}
+				}
+				@tooltip.Content(tooltip.ContentProps{ID: "run-tooltip"}) {
+					Run
+				}
 			}
 		}
 		@card.Content(card.ContentProps{Class: "flex-1 relative"}) {

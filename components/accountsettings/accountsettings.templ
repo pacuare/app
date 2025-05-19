@@ -1,0 +1,175 @@
+package accountsettings
+
+import "app.pacuare.dev/components/drawer"
+import "app.pacuare.dev/components/icon"
+import "app.pacuare.dev/components/badge"
+import "app.pacuare.dev/components/button"
+import "app.pacuare.dev/components/card"
+import "app.pacuare.dev/components/modal"
+import "app.pacuare.dev/components/tooltip"
+import "app.pacuare.dev/components/spinner"
+import . "github.com/icza/gox/gox"
+
+templ AccountSettings(email string, fullAccess bool, triggerProps drawer.TriggerProps) {
+    @drawer.Drawer() {
+        @drawer.Trigger(triggerProps) {
+            {children...}
+        }
+        @drawer.Content(drawer.ContentProps{Position: drawer.PositionRight}) {
+            @drawer.Header() {
+                @drawer.Title() {
+                    Account Settings
+                }
+                @drawer.Description() {
+                    {email}
+                    @badge.Badge(badge.Props{
+                        Variant: If(fullAccess, badge.VariantDestructive, badge.VariantOutline),
+                    }) {
+                        if fullAccess {
+                            @icon.ShieldAlert(icon.Props{Size: 12})
+                            Full access
+                        } else {
+                            @icon.ShieldCheck(icon.Props{Size: 12})
+                            Restricted access
+                        }
+                    }
+                }
+            }
+
+            if !fullAccess {
+                @card.Card() {
+                    @card.Header() {
+                        @card.Title() {
+                            Personal Database
+                        }
+                        @card.Description() {
+                            Keep your data in sync with the master copy.
+                        }
+                    }
+                    @card.Content() {
+                        <div class="flex flex-row gap-2">
+                            @modal.Trigger(modal.TriggerProps{
+                                ModalID: "confirm-refresh",
+                            }) {
+                                @tooltip.Tooltip() {
+                                    @tooltip.Trigger(tooltip.TriggerProps{
+                                        For: "refresh-tooltip",
+                                    }) {
+                                        @button.Button() {
+                                            Refresh Data
+                                        }
+                                    }
+                                    @tooltip.Content(tooltip.ContentProps{
+                                        ID: "refresh-tooltip",
+                                    }) {
+                                        Refresh the <code>pacuare_raw</code> table with the latest data.
+                                    }
+                                }
+                            }
+                            
+                            @modal.Trigger(modal.TriggerProps{
+                                ModalID: "confirm-recreate",
+                            }) {
+                                @tooltip.Tooltip() {
+                                    @tooltip.Trigger(tooltip.TriggerProps{
+                                        For: "recreate-tooltip",
+                                    }) {
+                                        @button.Button(button.Props{Variant: button.VariantDestructive}) {
+                                            Recreate Database
+                                        }
+                                    }
+                                    @tooltip.Content(tooltip.ContentProps{
+                                        ID: "recreate-tooltip",
+                                    }) {
+                                        Delete and recreate your personal database.
+                                    }
+                                }
+                            }
+                        </div>
+                    }
+                }
+            }
+
+            @drawer.Footer() {
+                @button.Button(button.Props{
+                    Variant: button.VariantDestructive,
+                    Attributes: templ.Attributes{"title": "Log Out"},
+                    Size: button.SizeIcon,
+                    Href: "/auth/logout",
+                }) {
+                    @icon.LogOut(icon.Props{Size: 16})
+                }
+            }
+        }
+    }
+
+    @modal.Modal(modal.Props{
+		ID:    "confirm-refresh",
+		Class: "max-w-md",
+	}) {
+		@modal.Header() {
+			Refresh data?
+		}
+		@modal.Body() {
+			This will clear any modifications you have made.
+		}
+		@modal.Footer() {
+			<div class="flex gap-2">
+				@modal.Close(modal.CloseProps{
+					ModalID: "confirm-refresh",
+				}) {
+					@button.Button() {
+						Cancel
+					}
+				}
+				@modal.Close(modal.CloseProps{
+					ModalID: "confirm-refresh",
+				}) {
+					@button.Button(button.Props{
+						Variant: button.VariantSecondary,
+                        ID: "refresh-db",
+					}) {
+						Refresh
+					}
+				}
+			</div>
+		}
+	}
+
+    @modal.Modal(modal.Props{
+		ID:    "confirm-recreate",
+		Class: "max-w-md",
+	}) {
+		@modal.Header() {
+			Are you absolutely sure?
+		}
+		@modal.Body() {
+			This action cannot be undone. This will delete and recreate your database, removing any modifications, functions, procedures, views, or other structures you have created.
+		}
+		@modal.Footer() {
+			<div class="flex gap-2">
+				@modal.Close(modal.CloseProps{
+					ModalID: "confirm-recreate",
+				}) {
+					@button.Button() {
+						Cancel
+					}
+				}
+				@modal.Close(modal.CloseProps{
+					ModalID: "confirm-recreate",
+				}) {
+					@button.Button(button.Props{
+						Variant: button.VariantSecondary,
+                        ID: "recreate-db",
+					}) {
+						Continue
+					}
+				}
+			</div>
+		}
+	}
+
+    <div id="loading-page" class="absolute top-0 left-0 w-screen h-screen z-20 backdrop-blur-md bg-white/50 items-center justify-center transition-all flex" style="pointer-events:none;opacity:0">
+        @spinner.Spinner(spinner.Props{Size: spinner.SizeLg})
+    </div>
+}

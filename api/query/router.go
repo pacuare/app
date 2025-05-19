@@ -72,6 +72,8 @@ func Mount() {
 			return
 		}
 
+		defer conn.Close(r.Context())
+
 		res, err := conn.Query(r.Context(), query)
 		if err != nil {
 			log.Errorf("Error running query: %e", err)

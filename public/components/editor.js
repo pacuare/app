@@ -39,5 +39,8 @@ window.addEventListener("DOMContentLoaded", () => {
     component
       .querySelector("[data-editor=language]")
       .addEventListener("change", rerender);
+    
+    // in case a restored browser tab prefills it
+    rerender({target: component});
   });
 });
