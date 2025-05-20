@@ -3,10 +3,10 @@ package shared
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var DB *pgx.Conn
+var DB *pgxpool.Pool
 
 func QueryOne[T any](query string, args ...any) (T, error) {
 	var result T

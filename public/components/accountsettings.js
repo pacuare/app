@@ -1,3 +1,5 @@
+import { apiQuery } from "../js/api.js";
+
 addEventListener("DOMContentLoaded", () => {
     const loading = document.querySelector("#loading-page")
 
@@ -5,7 +7,7 @@ addEventListener("DOMContentLoaded", () => {
         loading.style.pointerEvents = "all";
         loading.style.opacity = 1;
 
-        await fetch("/api/query?language=sql", {method: "post", body: "drop table pacuare_raw;"})
+        await apiQuery("sql", "drop table pacuare_raw;");
         await fetch("/api/refresh", {method: "post"})
 
         loading.style.pointerEvents = "none";
@@ -17,7 +19,7 @@ addEventListener("DOMContentLoaded", () => {
         loading.style.opacity = 1;
 
         await fetch("/api/recreate", {method: "post"})
-        
+
         location.reload()
     })
 })

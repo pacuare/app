@@ -1,0 +1,115 @@
+package docs
+
+import "app.pacuare.dev/components/card"
+import "app.pacuare.dev/components/accordion"
+import "app.pacuare.dev/components/code"
+import "app.pacuare.dev/components/separator"
+
+var sqlProps = code.Props{
+    Language: "sql",
+    ShowCopyButton: true,
+    Class: "overflow-x-auto pt-2",
+}
+
+templ Docs(id string) {
+    @card.Card(card.Props{Class: "hidden w-md min-w-md max-w-md flex-col items-stretch justify-stretch", ID: id}) {
+        @card.Header(card.HeaderProps{Class: "pb-5"}) {
+            @card.Title() { Documentation }
+        }
+        @separator.Separator()
+        @card.Content(card.ContentProps{Class: "flex flex-col items-stretch overflow-y-auto h-full pt-2 flex-1"}) {
+            <h2 class="font-bold py-2">Database Overview</h2>
+            @accordion.Accordion() {
+                @accordion.Item() {
+                    @accordion.Trigger() {
+                        <code>pacuare_raw</code>
+                    }
+                    @accordion.Content() {
+                        This table contains the raw, unprocessed data from Pacuare Reserve.
+                        To get an idea of the structure, try selecting the first ten rows:
+                        @code.Code(sqlProps) {
+                            SELECT * FROM pacuare_raw LIMIT 10
+                        }
+                    }
+                }
+            }
+            <h2 class="font-bold py-2">Useful Queries</h2>
+            @accordion.Accordion() {
+                @accordion.Item() {
+                    @accordion.Trigger() {
+                        <code>spanish_bool</code>
+                    }
+                    @accordion.Content() {
+                        This function converts the <code>SI</code> and <code>NO</code> values used in the raw data to SQL booleans.
+                        @code.Code(sqlProps) {
+                            {
+`CREATE OR REPLACE FUNCTION spanish_bool(str_val text)
+ RETURNS boolean
+ LANGUAGE plpgsql
+AS $function$ begin
+	if lower(str_val) = 'si' THEN
+		return TRUE;
+	ELSE
+		return FALSE;
+	end if;
+end $function$
+` 
+                            }
+                        }
+                    }
+                }
+                @accordion.Item() {
+                    @accordion.Trigger() {
+                        <code>turtle_occurrences</code>
+                    }
+                    @accordion.Content() {
+                        This function returns the number of times a turtle is present in the database.
+                        @code.Code(sqlProps) {
+                            {
+`CREATE OR REPLACE FUNCTION turtle_occurrences(turtle_requested text)
+ RETURNS integer
+ LANGUAGE sql
+AS $function$select count(*) from pacuare_raw where turtle_id = turtle_requested;$function$` 
+                            }
+                        }
+                    }
+                }
+                @accordion.Item() {
+                    @accordion.Trigger() {
+                        Unique Turtles
+                    }
+                    @accordion.Content() {
+                        <strong>Requires: <code>turtle_occurrences</code></strong><br>
+                        Use this query to get a list of all unique turtles in the database, with their number of occurrences and all injuries.
+                        <br><strong>If you have full access, this is already available as the <code>unique_turtles</code> view.</strong>
+                        @code.Code(sqlProps) {
+                            {
+`SELECT turtle_id,
+    turtle_occurrences(turtle_id) AS turtle_occurrences,
+    string_agg(injuries, ''::text) AS injuries
+FROM pacuare_raw
+WHERE (turtle_id <> ''::text)
+GROUP BY turtle_id;` 
+                            }
+                        }
+                    }
+                }
+            }
+            <h2 class="font-bold py-2">Common SQL Statements</h2>
+            @accordion.Accordion() {
+                @accordion.Item() {
+                    @accordion.Trigger() {
+                        SELECT
+                    }
+                    @accordion.Content() {
+                        The <code>SELECT</code> allows you to query data from the database.
+                        For instance, to select all of the turtle layings with more than 100 fertile eggs:
+                        @code.Code(sqlProps) {
+                            { `select * from pacuare_raw where fertile_eggs != '' and fertile_eggs::int8 > 100` }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/resend/resend-go/v2"
 )
 
@@ -24,7 +24,7 @@ func init() {
 	client = resend.NewClient(apiKey)
 }
 
-func SendConfirmation(conn *pgx.Conn, email string) (*Confirmation, error) {
+func SendConfirmation(conn *pgxpool.Pool, email string) (*Confirmation, error) {
 	var code string
 	err := conn.
 		QueryRow(context.Background(), "select MakeVerificationCode($1)", email).

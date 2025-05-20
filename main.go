@@ -10,18 +10,18 @@ import (
 	"app.pacuare.dev/shared"
 	"app.pacuare.dev/templates"
 	"github.com/charmbracelet/log"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
 	log.Info("Connecting to database")
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	conn, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Failed to connect to database")
 	}
 	log.Info("Connected")
 	shared.DB = conn
-	defer conn.Close(context.Background())
+	defer conn.Close()
 
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	api.Mount()

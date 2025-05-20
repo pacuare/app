@@ -1,16 +1,13 @@
-import "prismjs";
-
 function rerender(evt) {
   const me = evt.target.closest("[data-component=editor]"),
     editor = me.querySelector("[data-editor=editor]"),
     overlay = me.querySelector("[data-editor=overlay]"),
     language = me.querySelector("[data-editor=language]");
 
-  overlay.innerHTML = Prism.highlight(
+  overlay.innerHTML = hljs.highlight(
     editor.value,
-    Prism.languages[language.value],
-    language.value,
-  );
+    {language: language.value}
+  ).value;
 }
 
 export function language(component) {
