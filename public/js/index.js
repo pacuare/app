@@ -11,11 +11,13 @@ async function runQuery() {
     runBtn.setAttribute("disabled", "")
     runBtn.classList.add("disabled")
     
-    await apiQuery(language(editor), query(editor)).then(displayResults)
+    await apiQuery(language(editor), query(editor)).then(displayResults);
 
     runBtn.removeAttribute("disabled")
     runBtn.classList.remove("disabled")
 }
+
+window.sql_query = (q) => apiQuery("sql", q)
 
 addEventListener('DOMContentLoaded', () => {
     runBtn.addEventListener("click", runQuery)
