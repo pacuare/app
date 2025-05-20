@@ -1,6 +1,6 @@
 import { language, query } from "../components/editor.js"
 import { apiQuery } from "./api.js"
-import { displayResults } from "./index/lib.js"
+import { displayResults, downloadCurrentResults } from "./index/lib.js"
 import "../components/accountsettings.js"
 
 const runBtn = document.querySelector("#run-query")
@@ -25,4 +25,6 @@ addEventListener('DOMContentLoaded', () => {
         ["#docs-sidebar", ".docs-icon-closed", ".docs-icon-open"].map(el =>
             document.querySelector(el).classList.toggle("hidden"));
     })
+
+    document.querySelector("#exportCSV").addEventListener("click", downloadCurrentResults)
 })

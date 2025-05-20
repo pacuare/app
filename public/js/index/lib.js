@@ -1,19 +1,24 @@
+import { downloadResults } from "./download.js";
+
+let currentResults = []
+
 export function displayResults(res) {
+    currentResults = res;
     const table = document.querySelector("#resultsTable")
     const err = document.querySelector("#resultError")
     if('error' in res) {
-        table.classList.add("hidden")
+        document.querySelector("#resultsTableWrapper").classList.add("hidden")
         err.classList.remove("hidden")
         err.textContent = res.error
     } else {
         if(res.length == 0) {
-            table.classList.add("hidden")
+            document.querySelector("#resultsTableWrapper").classList.add("hidden")
             err.classList.remove("hidden")
             err.textContent = "No rows in response"
             return
         }
         table.innerHTML = ""
-        table.classList.remove("hidden")
+        document.querySelector("#resultsTableWrapper").classList.remove("hidden")
         err.classList.add("hidden")
         const fields = Object.keys(res[0]);
         const th = document.createElement("thead");
@@ -40,4 +45,8 @@ export function displayResults(res) {
         }
         table.appendChild(tb);
     }
+}
+
+export function downloadCurrentResults() {
+    downloadResults(currentResults)
 }
