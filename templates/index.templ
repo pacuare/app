@@ -11,6 +11,11 @@ import "app.pacuare.dev/components/drawer"
 import "app.pacuare.dev/components/docs"
 import "app.pacuare.dev/components/tabs"
 import . "github.com/icza/gox/gox"
+import "embed"
+import "github.com/charmbracelet/log"
+
+//go:embed python
+var python embed.FS
 
 templ Index(email string, fullAccess bool) {
 	@layout("Pacuare Reserve") {
@@ -96,15 +101,16 @@ templ Index(email string, fullAccess bool) {
 				@tabs.Content(tabs.ContentProps{
 					Value: "python",
 					IsActive: true,
-					Class: "flex w-full h-full self-stretch justify-self-stretch",
+					Class: "flex flex-1 w-full h-full items-stretch justify-stretch self-stretch justify-self-stretch",
 				}) {
-					<gradio-lite playground layout="horizontal" class="self-stretch justify-self-stretch w-full h-full">
-					{`import gradio as gr
-
-gr.Interface(fn=lambda x: x,
-			inputs=gr.Textbox(),
-			outputs=gr.Textbox()
-		).launch()`}
+					{{ queryPy, _ := python.ReadFile("python/query.py") }}
+					{{ appPy, err := python.ReadFile("python/app.py") }}
+					{{ if err != nil {log.Error(err)}}}
+					<gradio-lite playground layout="horizontal" class="w-full">
+						<gradio-file name="query.py">
+							{ string(queryPy) }
+						</gradio-file>
+						{ string(appPy) }
 					</gradio-lite>
 				}
 			}

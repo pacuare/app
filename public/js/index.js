@@ -17,8 +17,6 @@ async function runQuery() {
     runBtn.classList.remove("disabled")
 }
 
-window.sql_query = (q) => apiQuery("sql", q)
-
 addEventListener('DOMContentLoaded', () => {
     runBtn.addEventListener("click", runQuery)
 
