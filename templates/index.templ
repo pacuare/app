@@ -58,7 +58,7 @@ templ Index(email string, fullAccess bool) {
 				
 				@card.Card(card.Props{Class: "flex flex-col items-stretch translate-0 box-border"}) {
 					@alert.Alert(alert.Props{ID: "resultError", Class: "hidden m-2 w-[calc(100%-(var(--spacing)*4))]", Variant: alert.VariantDestructive})
-					@table.Table(table.Props{ID: "resultsTable", Class: "max-h-full max-w-full"})
+					@table.Table(table.Props{ID: "resultsTable", Class: "h-full max-h-full max-w-full"})
 					@button.Button(button.Props{
 						Size: button.SizeIcon,
 						ID: "exportCSV",
