@@ -5,20 +5,27 @@ let currentResults = []
 export function displayResults(res) {
     currentResults = res;
     const table = document.querySelector("#resultsTable")
+    const dlBtn = document.querySelector("#exportCSV")
     const err = document.querySelector("#resultError")
     if('error' in res) {
-        document.querySelector("#resultsTableWrapper").classList.add("hidden")
+        table.classList.add("hidden")
+        dlBtn.classList.add("hidden")
+        dlBtn.classList.remove("inline-flex")
         err.classList.remove("hidden")
         err.textContent = res.error
     } else {
         if(res.length == 0) {
-            document.querySelector("#resultsTableWrapper").classList.add("hidden")
+            table.classList.add("hidden")
+            dlBtn.classList.add("hidden")
+            dlBtn.classList.remove("inline-flex")
             err.classList.remove("hidden")
             err.textContent = "No rows in response"
             return
         }
         table.innerHTML = ""
-        document.querySelector("#resultsTableWrapper").classList.remove("hidden")
+        table.classList.remove("hidden")
+        dlBtn.classList.remove("hidden")
+        dlBtn.classList.add("inline-flex")
         err.classList.add("hidden")
         const fields = Object.keys(res[0]);
         const th = document.createElement("thead");
