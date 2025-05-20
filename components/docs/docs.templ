@@ -102,7 +102,7 @@ GROUP BY turtle_id;`
                         SELECT
                     }
                     @accordion.Content() {
-                        The <code>SELECT</code> allows you to query data from the database.
+                        The <code>SELECT</code> statement allows you to query data from the database.
                         For instance, to select all of the turtle layings with more than 100 fertile eggs:
                         @code.Code(sqlProps) {
                             { `select * from pacuare_raw where fertile_eggs != '' and fertile_eggs::int8 > 100` }
