@@ -8,9 +8,13 @@ import "app.pacuare.dev/components/card"
 import "app.pacuare.dev/components/modal"
 import "app.pacuare.dev/components/tooltip"
 import "app.pacuare.dev/components/spinner"
+import "app.pacuare.dev/shared"
+import "context"
+import "app.pacuare.dev/components/alert"
+import "app.pacuare.dev/components/input"
 import . "github.com/icza/gox/gox"
 
-templ AccountSettings(email string, fullAccess bool, triggerProps drawer.TriggerProps) {
+templ AccountSettings(email string, fullAccess bool, returnedApiKey string, triggerProps drawer.TriggerProps) {
     @drawer.Drawer() {
         @drawer.Trigger(triggerProps) {
             {children...}
@@ -36,59 +40,112 @@ templ AccountSettings(email string, fullAccess bool, triggerProps drawer.Trigger
                 }
             }
 
-            if !fullAccess {
+            <div class="flex flex-col gap-4">
+                if !fullAccess {
+                    @card.Card() {
+                        @card.Header() {
+                            @card.Title() {
+                                Personal Database
+                            }
+                            @card.Description() {
+                                Keep your data in sync with the master copy.
+                            }
+                        }
+                        @card.Content() {
+                            <div class="flex flex-row gap-2">
+                                @modal.Trigger(modal.TriggerProps{
+                                    ModalID: "confirm-refresh",
+                                }) {
+                                    @tooltip.Tooltip() {
+                                        @tooltip.Trigger(tooltip.TriggerProps{
+                                            For: "refresh-tooltip",
+                                        }) {
+                                            @button.Button() {
+                                                Refresh Data
+                                            }
+                                        }
+                                        @tooltip.Content(tooltip.ContentProps{
+                                            ID: "refresh-tooltip",
+                                        }) {
+                                            Refresh the <code>pacuare_raw</code> table with the latest data.
+                                        }
+                                    }
+                                }
+                                
+                                @modal.Trigger(modal.TriggerProps{
+                                    ModalID: "confirm-recreate",
+                                }) {
+                                    @tooltip.Tooltip() {
+                                        @tooltip.Trigger(tooltip.TriggerProps{
+                                            For: "recreate-tooltip",
+                                        }) {
+                                            @button.Button(button.Props{Variant: button.VariantDestructive}) {
+                                                Recreate Database
+                                            }
+                                        }
+                                        @tooltip.Content(tooltip.ContentProps{
+                                            ID: "recreate-tooltip",
+                                        }) {
+                                            Delete and recreate your personal database.
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                }
+
                 @card.Card() {
                     @card.Header() {
                         @card.Title() {
-                            Personal Database
+                            API Keys
                         }
                         @card.Description() {
-                            Keep your data in sync with the master copy.
+                            Access your data from your own apps.
                         }
                     }
-                    @card.Content() {
-                        <div class="flex flex-row gap-2">
-                            @modal.Trigger(modal.TriggerProps{
-                                ModalID: "confirm-refresh",
-                            }) {
-                                @tooltip.Tooltip() {
-                                    @tooltip.Trigger(tooltip.TriggerProps{
-                                        For: "refresh-tooltip",
-                                    }) {
-                                        @button.Button() {
-                                            Refresh Data
-                                        }
+                    @card.Content(card.ContentProps{Class: "flex flex-col gap-3"}) {
+                        if returnedApiKey != "" {
+                            @alert.Alert() {
+                                Your new API key is <code>{returnedApiKey}</code>. Please keep track of it, as it will not be shown again. 
+                            }
+                        }
+                        {{ keys, err := shared.DB.Query(context.Background(), "select id, description, to_char(createdOn, 'YYYY-MM-DD') as createdOn from APIKeys where email = $1 order by createdOn asc", email) }}
+                        if err != nil {
+                            @alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {Error fetching API keys}
+                        } else {
+                            @card.Card() {
+                                @card.Content(card.ContentProps{Class: "[>:not(:last-child)]:border-b flex flex-col gap-3"}) {
+                                    {{ var (id int; description, createdOn string; anyKeys = false) }}
+                                    for keys.Next() {
+                                        {{ anyKeys = true }}
+                                        {{ keys.Scan(&id, &description, &createdOn) }}
+                                        <form class="flex flex-row justify-between items-center" action="/api/key/delete" method="post">
+                                            <input type="hidden" name="id" value={id}>
+                                            <p>{description}</p>
+                                            <div class="flex flex-row gap-2 items-center">
+                                                <p>{createdOn}</p>
+                                                @button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeIcon, Variant: button.VariantGhost}) {
+                                                    @icon.Trash(icon.Props{Size: 16})
+                                                }
+                                            </div>
+                                        </form>
                                     }
-                                    @tooltip.Content(tooltip.ContentProps{
-                                        ID: "refresh-tooltip",
-                                    }) {
-                                        Refresh the <code>pacuare_raw</code> table with the latest data.
+                                    if !anyKeys {
+                                        No API keys.
                                     }
                                 }
                             }
-                            
-                            @modal.Trigger(modal.TriggerProps{
-                                ModalID: "confirm-recreate",
-                            }) {
-                                @tooltip.Tooltip() {
-                                    @tooltip.Trigger(tooltip.TriggerProps{
-                                        For: "recreate-tooltip",
-                                    }) {
-                                        @button.Button(button.Props{Variant: button.VariantDestructive}) {
-                                            Recreate Database
-                                        }
-                                    }
-                                    @tooltip.Content(tooltip.ContentProps{
-                                        ID: "recreate-tooltip",
-                                    }) {
-                                        Delete and recreate your personal database.
-                                    }
+                            <form class="flex flex-row gap-2" action="/api/key" method="post">
+                                @input.Input(input.Props{Placeholder: "Description", Name: "description"})
+                                @button.Button(button.Props{Type: button.TypeSubmit, Size: button.SizeIcon}) {
+                                    @icon.Plus(icon.Props{Size: 16})
                                 }
-                            }
-                        </div>
+                            </form>
+                        }
                     }
                 }
-            }
+            </div>
 
             @drawer.Footer() {
                 @button.Button(button.Props{

@@ -26,6 +26,7 @@ func main() {
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	api.Mount()
 	http.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		returnedApiKey := r.URL.Query().Get("key")
 		email, err := shared.GetUser(r)
 
 		if err != nil {
@@ -53,7 +54,7 @@ func main() {
 			}
 		}
 
-		templates.Index(*email, fullAccess).Render(r.Context(), w)
+		templates.Index(*email, fullAccess, returnedApiKey).Render(r.Context(), w)
 	})
 
 	http.HandleFunc("GET /createdb", func(w http.ResponseWriter, r *http.Request) {

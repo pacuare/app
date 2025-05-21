@@ -64,4 +64,60 @@ func Mount() {
 		w.WriteHeader(200)
 		w.Write([]byte("Deleted successfully"))
 	})
+
+	http.HandleFunc("POST /api/key", func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+			return
+		}
+
+		email, err := shared.GetUser(r)
+		description := r.FormValue("description")
+
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			return
+		}
+
+		key, err := shared.QueryOne[string]("insert into APIKeys (email, description) values ($1, $2) returning key", email, description)
+
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+			return
+		}
+
+		http.Redirect(w, r, fmt.Sprintf("/?settings&key=%s", key), http.StatusSeeOther)
+	})
+
+	http.HandleFunc("POST /api/key/delete", func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+			return
+		}
+
+		email, err := shared.GetUser(r)
+		id := r.FormValue("id")
+
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			return
+		}
+
+		_, err = shared.DB.Exec(context.Background(), "delete from APIKeys where id = $1 and email = $2", id, email)
+
+		if err != nil {
+			log.Error(err)
+			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+			return
+		}
+
+		http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+	})
 }

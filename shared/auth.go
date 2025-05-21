@@ -10,23 +10,29 @@ import (
 func GetUser(r *http.Request) (*string, error) {
 	authStatus, err := r.Cookie("AuthStatus")
 
-	if err != nil {
-		return nil, err
+	if err == nil {
+		authBytes, err := hex.DecodeString(authStatus.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		email, err := Decrypt(authBytes)
+		if err != nil {
+			return nil, err
+		}
+
+		emailStr := string(email)
+
+		return &emailStr, nil
+	} else {
+		authHeader := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+		emailStr, err := QueryOne[string]("select email from APIKeys where key = $1", authHeader)
+		if err != nil {
+			return nil, err
+		}
+
+		return &emailStr, nil
 	}
-
-	authBytes, err := hex.DecodeString(authStatus.Value)
-	if err != nil {
-		return nil, err
-	}
-
-	email, err := Decrypt(authBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	emailStr := string(email)
-
-	return &emailStr, nil
 }
 
 func GetUserDatabase(email string) string {

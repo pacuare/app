@@ -12,9 +12,11 @@ templ Editor(id string) {
 	@card.Card(card.Props{ID: id, Class: "flex flex-col h-full", Attributes: map[string]any{"data-component": "editor"}}) {
 		<input type="hidden" data-editor="language" value="sql">
 		@card.Content(card.ContentProps{Class: "flex-1 relative"}) {
+			@textarea.Textarea(textarea.Props{Class: "hljs absolute !text-transparent caret-white font-mono text-base h-[calc(100%-(var(--spacing)*12))] w-[calc(100%-(var(--spacing)*12))] resize-none box-border", Attributes: templ.Attributes{"data-editor": "editor"}})
+			<pre data-editor="overlay" class="absolute font-mono pointer-events-none text-base py-2 px-3 h-[calc(100%-(var(--spacing)*12))] max-w-[calc(100%-(var(--spacing)*12))] whitespace-pre-wrap wrap-break-word border border-transparent overflow-hidden" style="color: rgb(220, 207, 143)"><code class="max-w-[calc(100%-(var(--spacing)*12))] overflow-clip wrap-break-word hljs text-[rgb(220, 207, 143)]"></code></pre>
 			@tooltip.Tooltip() {
 				@tooltip.Trigger(tooltip.TriggerProps{For: "run-tooltip"}) {
-					@button.Button(button.Props{Class: "block absolute top-8 right-8 z-100", Variant: button.VariantOutline, Attributes: map[string]any{"data-editor": "run"}, ID: "run-query"}) {
+					@button.Button(button.Props{Class: "block absolute top-8 right-8", Variant: button.VariantOutline, Attributes: map[string]any{"data-editor": "run"}, ID: "run-query"}) {
 						@icon.Play(icon.Props{Size: 16})
 					}
 				}
@@ -22,8 +24,6 @@ templ Editor(id string) {
 					Run
 				}
 			}
-			@textarea.Textarea(textarea.Props{Class: "hljs absolute !text-transparent caret-white font-mono text-base h-[calc(100%-(var(--spacing)*12))] w-[calc(100%-(var(--spacing)*12))] resize-none box-border", Attributes: templ.Attributes{"data-editor": "editor"}})
-			<pre data-editor="overlay" class="absolute font-mono pointer-events-none text-base py-2 px-3 h-[calc(100%-(var(--spacing)*12))] max-w-[calc(100%-(var(--spacing)*12))] whitespace-pre-wrap wrap-break-word border border-transparent overflow-hidden" style="color: rgb(220, 207, 143)"><code class="max-w-[calc(100%-(var(--spacing)*12))] overflow-clip wrap-break-word hljs text-[rgb(220, 207, 143)]"></code></pre>
 		}
 	}
 }

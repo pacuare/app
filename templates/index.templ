@@ -17,7 +17,7 @@ import "github.com/charmbracelet/log"
 //go:embed python
 var python embed.FS
 
-templ Index(email string, fullAccess bool) {
+templ Index(email string, fullAccess bool, returnedApiKey string) {
 	@layout("Pacuare Reserve") {
 		<script type="module" crossorigin src="https://cdn.jsdelivr.net/npm/@gradio/lite/dist/lite.js"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gradio/lite/dist/lite.css" />
@@ -45,13 +45,14 @@ templ Index(email string, fullAccess bool) {
 				}
 				- {email}
 			}
-			@accountsettings.AccountSettings(email, fullAccess, drawer.TriggerProps{
+			@accountsettings.AccountSettings(email, fullAccess, returnedApiKey, drawer.TriggerProps{
 				Class: "flex items-stretch justify-stretch h-full",
 			}) {
 				@button.Button(button.Props{
 					Variant: button.VariantOutline,
 					Attributes: templ.Attributes{"title": "Account Settings"},
 					Class: "flex items-center justify-center h-full",
+					ID: "openSettings",
 					Size: button.SizeIcon,
 				}) {
 					@icon.Settings(icon.Props{Size: 16})
