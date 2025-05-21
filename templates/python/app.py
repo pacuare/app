@@ -1,21 +1,30 @@
 import gradio as gr
-import query
+from query import query
 
-async def process():
+def process(id):
+  sql = "select injuries, turtle_occurrences from unique_turtles where turtle_id = $1"
+  params = [id]
+  if id == '':
+    sql = "select injuries, turtle_occurrences from unique_turtles"
+    params = []
   return (
-    (await query.sql("select injuries, turtle_occurrences from unique_turtles"))
+    query(sql, params)
     .apply(
-      lambda row: {**row, 'n_injuries': len(row['injuries'].split(','))},
+      lambda row: {
+        **row, 
+        'n_injuries': len(
+          [injury for injury in row['injuries'] if injury.strip() != '']
+        )
+      },
       axis=1,
       result_type='expand'
     )
   )
 
-with gr.Blocks() as demo:
-    gr.ScatterPlot(
-        value=await process(),
-        x='turtle_occurrences',
-        y='n_injuries'
-    )
+demo = gr.Interface(
+  fn=process,
+  inputs=["text"],
+  outputs=[gr.ScatterPlot(x='turtle_occurrences', y='n_injuries')]
+)
 
 demo.launch()

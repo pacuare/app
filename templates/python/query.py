@@ -1,14 +1,16 @@
-from pyodide.http import pyfetch
-import json
+import requests
 import pandas as pd
 
-async def sql(query: str, base: str = 'https://app.pacuare.dev') -> pd.DataFrame:
-    res = await pyfetch(base + '/api/query?language=sql',
-                        method='post',
-                        headers={
-                            'Content-Type': 'text/sql',
-                            'Accept': 'application/json'
-                        },
-                        body=query)
-    
-    return pd.DataFrame.from_records(await res.json())
+def query(sql: str, params: list = [], base = 'https://app.pacuare.dev') -> pd.DataFrame:
+        """Query your database using SQL, returning a Pandas DataFrame of the results."""
+        res = requests.post(base + '/api/query',
+                            headers={
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            json={
+                                'query': sql,
+                                'params': params
+                            })
+
+        return pd.DataFrame.from_records(res.json())

@@ -12,7 +12,6 @@ import "app.pacuare.dev/components/docs"
 import "app.pacuare.dev/components/tabs"
 import . "github.com/icza/gox/gox"
 import "embed"
-import "github.com/charmbracelet/log"
 
 //go:embed python
 var python embed.FS
@@ -105,9 +104,12 @@ templ Index(email string, fullAccess bool, returnedApiKey string) {
 					Class: "flex flex-1 w-full h-full items-stretch justify-stretch self-stretch justify-self-stretch",
 				}) {
 					{{ queryPy, _ := python.ReadFile("python/query.py") }}
-					{{ appPy, err := python.ReadFile("python/app.py") }}
-					{{ if err != nil {log.Error(err)}}}
+					{{ appPy, _ := python.ReadFile("python/app.py") }}
+					{{ requirements, _ := python.ReadFile("python/requirements.txt") }}
 					<gradio-lite playground layout="horizontal" class="w-full">
+						<gradio-requirements>
+							{ string(requirements) }
+						</gradio-requirements>
 						<gradio-file name="query.py">
 							{ string(queryPy) }
 						</gradio-file>
