@@ -1,7 +1,7 @@
 import { language, query } from "../components/editor.js"
 import { apiQuery } from "./api.js"
-import { displayResults, downloadCurrentResults } from "./index/lib.js"
 import "../components/accountsettings.js"
+import { downloadResults } from "./index/download.js"
 
 const runBtn = document.querySelector("#run-query")
 
@@ -27,9 +27,40 @@ addEventListener('DOMContentLoaded', () => {
     })
 
     document.querySelector("#exportCSV").addEventListener("click", downloadCurrentResults)
+})
 
-    if(location.search.includes("settings=") || location.search.includes("key=")) {
-        document.querySelector("#openSettings").click()
-        history.pushState(null, '', location.href.split('?')[0])
-    }
+document.addEventListener('alpine:init', () => {
+    Alpine.data('index', () => ({
+        docsOpen: false,
+        runDisabled: false,
+        currentResults: [],
+        resultsError: null,
+
+        runBtn: {
+            async ['@click']() {
+                this.runDisabled = true;
+                this.currentResults = await apiQuery(language(editor), query(editor));
+                this.runDisabled = false;
+            }
+        },
+
+        openDocs: {
+            ['@click']() {
+                this.docsOpen = !this.docsOpen
+            }
+        },
+
+        exportCSV: {
+            ['@click']() {
+                downloadResults(this.currentResults)
+            }
+        },
+
+        init() {
+            if(location.search.includes("settings=") || location.search.includes("key=")) {
+                document.querySelector("#openSettings").click()
+                history.pushState(null, '', location.href.split('?')[0])
+            }
+        }
+    }))
 })

@@ -2,7 +2,7 @@ package templates
 import "app.pacuare.dev/components/importmap"
 import "app.pacuare.dev/components/styles"
 
-templ layout(title string) {
+templ layout(title string, alpineData string) {
 	<!doctype html>
 	<html>
 		<head>
@@ -11,7 +11,7 @@ templ layout(title string) {
 			@importmap.ImportMap()
 		</head>
 		<body class="h-screen min-h-screen max-h-screen">
-			<main>
+			<main x-data={alpineData}>
 			{ children... }
 			</main>
 		</body>

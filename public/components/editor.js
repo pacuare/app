@@ -1,14 +1,32 @@
-function rerender(evt) {
-  const me = evt.target.closest("[data-component=editor]"),
-    editor = me.querySelector("[data-editor=editor]"),
-    overlay = me.querySelector("[data-editor=overlay]"),
-    language = me.querySelector("[data-editor=language]");
+Alpine.data('editor', () => ({
+  editorContent: '',
+  output: '',
+  language: 'sql',
+  overlayWidth: null,
+  overlayHeight: null,
 
-  overlay.innerHTML = hljs.highlight(
-    editor.value,
-    {language: language.value}
-  ).value;
-}
+  overlay: {
+    [':style']() {
+
+    }
+  },
+
+  rerender() {
+    this.output = hljs.highlight(
+      this.editorContent,
+      {language: this.language}
+    ).value;
+  },
+
+  init() {
+    new ResizeObserver(() => {
+      this.overlayWidth = textArea.offsetWidth + 'px';
+      this.overlayHeight = textArea.offsetHeight + 'px';
+    }).observe(document.querySelector(this.$id('editor')));
+    this.overlayWidth = textArea.offsetWidth + 'px';
+    this.overlayHeight = textArea.offsetHeight + 'px';
+  }
+}));
 
 export function language(component) {
   return component.querySelector("[data-editor=language]").value
@@ -22,11 +40,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const textArea = component.querySelector("[data-editor=editor]");
     const overlay = component.querySelector("[data-editor=overlay]");
     textArea.addEventListener("input", rerender);
-
-    new ResizeObserver(() => {
-      overlay.style.width = textArea.offsetWidth + 'px';
-      overlay.style.height = textArea.offsetHeight + 'px';
-    }).observe(textArea);
 
     textArea.addEventListener("scroll", e => {
       overlay.scrollTop = textArea.scrollTop;

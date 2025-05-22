@@ -5,7 +5,7 @@ import "app.pacuare.dev/components/form"
 import "app.pacuare.dev/components/button"
 
 templ loginLayout(method string, action string) {
-    @layout("Log In") {
+    @layout("Log In", "{}") {
         <div class="w-full h-full flex items-center justify-center">
             @card.Card(card.Props{Class: "self-center justify-self-center max-w-md mx-auto"}) {
                 @card.Header() {

@@ -11,8 +11,8 @@ var sqlProps = code.Props{
     Class: "overflow-x-auto pt-2",
 }
 
-templ Docs(id string) {
-    @card.Card(card.Props{Class: "hidden w-md min-w-md max-w-md flex-col items-stretch justify-stretch", ID: id}) {
+templ Docs() {
+    @card.Card(card.Props{Class: "w-md min-w-md max-w-md flex-col items-stretch justify-stretch"}) {
         @card.Header(card.HeaderProps{Class: "pb-5"}) {
             @card.Title() { Documentation }
         }
