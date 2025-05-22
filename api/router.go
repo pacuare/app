@@ -43,87 +43,89 @@ func Router() chi.Router {
 		fmt.Fprint(w, `{"ok":"true"}`)
 	})
 
-	r.Use(auth.RequireAuth)
+	r.Route("/", func(r chi.Router) {
+		r.Use(auth.RequireAuth)
 
-	r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
-		email := auth.GetUser(r.Context())
+		r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
+			email := auth.GetUser(r.Context())
 
-		db, err := db.QueryOne[string](r.Context(), "select InitUserDatabase($1, $2, $3)", os.Getenv("DATABASE_URL_BASE"), os.Getenv("DATABASE_DATA"), *email)
+			db, err := db.QueryOne[string](r.Context(), "select InitUserDatabase($1, $2, $3)", os.Getenv("DATABASE_URL_BASE"), os.Getenv("DATABASE_DATA"), *email)
 
-		if err != nil {
-			w.WriteHeader(500)
-			w.Write([]byte("Internal server error"))
-			return
-		}
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Internal server error"))
+				return
+			}
 
-		w.WriteHeader(200)
-		w.Write([]byte(db))
-	})
+			w.WriteHeader(200)
+			w.Write([]byte(db))
+		})
 
-	r.Post("/recreate", func(w http.ResponseWriter, r *http.Request) {
-		email := auth.GetUser(r.Context())
+		r.Post("/recreate", func(w http.ResponseWriter, r *http.Request) {
+			email := auth.GetUser(r.Context())
 
-		_, err := r.Context().Value("db").(*pgxpool.Pool).Exec(context.Background(), fmt.Sprintf("drop database %s", auth.GetUserDatabase(*email)))
+			_, err := r.Context().Value("db").(*pgxpool.Pool).Exec(context.Background(), fmt.Sprintf("drop database %s", auth.GetUserDatabase(*email)))
 
-		if err != nil {
-			log.Error(err)
-			w.WriteHeader(500)
-			w.Write([]byte("Internal server error"))
-			return
-		}
+			if err != nil {
+				log.Error(err)
+				w.WriteHeader(500)
+				w.Write([]byte("Internal server error"))
+				return
+			}
 
-		w.WriteHeader(200)
-		w.Write([]byte("Deleted successfully"))
-	})
+			w.WriteHeader(200)
+			w.Write([]byte("Deleted successfully"))
+		})
 
-	r.Post("/key", func(w http.ResponseWriter, r *http.Request) {
-		err := r.ParseForm()
-		if err != nil {
-			log.Error(err)
+		r.Post("/key", func(w http.ResponseWriter, r *http.Request) {
+			err := r.ParseForm()
+			if err != nil {
+				log.Error(err)
+				http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+				return
+			}
+
+			email := auth.GetUser(r.Context())
+			description := r.FormValue("description")
+
+			if err != nil {
+				log.Error(err)
+				http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+				return
+			}
+
+			key, err := db.QueryOne[string](r.Context(), "insert into APIKeys (email, description) values ($1, $2) returning key", email, description)
+
+			if err != nil {
+				log.Error(err)
+				http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+				return
+			}
+
+			http.Redirect(w, r, fmt.Sprintf("/?settings&key=%s", key), http.StatusSeeOther)
+		})
+
+		r.Post("/key/delete", func(w http.ResponseWriter, r *http.Request) {
+			err := r.ParseForm()
+			if err != nil {
+				log.Error(err)
+				http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+				return
+			}
+
+			email := auth.GetUser(r.Context())
+			id := r.FormValue("id")
+
+			_, err = db.DB(r.Context()).Exec(context.Background(), "delete from APIKeys where id = $1 and email = $2", id, email)
+
+			if err != nil {
+				log.Error(err)
+				http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+				return
+			}
+
 			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
-			return
-		}
-
-		email := auth.GetUser(r.Context())
-		description := r.FormValue("description")
-
-		if err != nil {
-			log.Error(err)
-			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-			return
-		}
-
-		key, err := db.QueryOne[string](r.Context(), "insert into APIKeys (email, description) values ($1, $2) returning key", email, description)
-
-		if err != nil {
-			log.Error(err)
-			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
-			return
-		}
-
-		http.Redirect(w, r, fmt.Sprintf("/?settings&key=%s", key), http.StatusSeeOther)
-	})
-
-	r.Post("/key/delete", func(w http.ResponseWriter, r *http.Request) {
-		err := r.ParseForm()
-		if err != nil {
-			log.Error(err)
-			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
-			return
-		}
-
-		email := auth.GetUser(r.Context())
-		id := r.FormValue("id")
-
-		_, err = db.DB(r.Context()).Exec(context.Background(), "delete from APIKeys where id = $1 and email = $2", id, email)
-
-		if err != nil {
-			log.Error(err)
-			http.Redirect(w, r, "/?settings", http.StatusSeeOther)
-			return
-		}
-
-		http.Redirect(w, r, "/?settings", http.StatusSeeOther)
+		})
 	})
 
 	return r
