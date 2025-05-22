@@ -28,7 +28,7 @@ addEventListener('DOMContentLoaded', () => {
 
     document.querySelector("#exportCSV").addEventListener("click", downloadCurrentResults)
 
-    if(location.search.includes("settings") || location.search.includes("key=")) {
+    if(location.search.includes("settings=") || location.search.includes("key=")) {
         document.querySelector("#openSettings").click()
         history.pushState(null, '', location.href.split('?')[0])
     }
