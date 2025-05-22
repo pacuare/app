@@ -5,20 +5,22 @@ info:
   description: An API to interface with Pacuare Reserve's turtle census data.
 
 servers:
-  - url: https://app.pacuare.dev/api
-
-security:
-  BearerAuth: []
+  - url: https://app.pacuare.dev
 
 paths:
-  /query:
+  /api/query:
     post:
+      security:
+        - apiKey: []
+      
       description: Queries the database with SQL.
       requestBody:
         required: true
         content:
           text/sql:
-            description: A plain SQL query.
+            schema:
+              type: string
+            example: SELECT * FROM pacuare_raw LIMIT 10
           application/json:
             schema:
               type: object
@@ -27,34 +29,47 @@ paths:
                   type: string
                 params:
                   type: array
-        responses:
-          '200':
-            description: Successfully queried the database.
-            content:
-              application/json:
-                schema:
-                  type: array
-          '400':
-            description: Not authorized.
-            content:
-              application/json:
-                schema:
+                  items:
+                    type: object
+            example:
+              query: SELECT * FROM pacuare_raw WHERE turtle_id = $1
+              params: [ABCDE1G]
+      responses:
+        '200':
+          description: Successfully queried the database.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
                   type: object
-                  properties:
-                    error:
-                      type: string
-          '500':
-            description: Internal server error.
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    error:
-                      type: string
+        '401':
+          description: Not authorized.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "Not authorized"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+security:
+  - apiKey: []
 
 components:
   securitySchemes:
-    BearerAuth:
+    apiKey:
+      description: API key requested from the dashboard
       type: http
       scheme: bearer
+      bearerFormat: Token
