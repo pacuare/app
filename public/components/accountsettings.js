@@ -1,25 +1,29 @@
 import { apiQuery } from "../js/api.js";
+import Alpine from "alpinejs";
 
-addEventListener("DOMContentLoaded", () => {
-    const loading = document.querySelector("#loading-page")
+document.addEventListener("alpine:init", () => {
+    Alpine.data('accountSettings', () => ({
+        loading: false,
 
-    document.querySelector("#refresh-db").addEventListener("click", async () => {
-        loading.style.pointerEvents = "all";
-        loading.style.opacity = 1;
+        refreshButton: {
+            async ["@click"]() {
+                this.loading = true;
 
-        await apiQuery("sql", "drop table pacuare_raw;");
-        await fetch("/api/refresh", {method: "post"})
+                await apiQuery("sql", "drop table pacuare_raw;");
+                await fetch("/api/refresh", {method: "post"})
 
-        loading.style.pointerEvents = "none";
-        loading.style.opacity = 0;
-    })
+                this.loading = false;
+            }
+        },
 
-    document.querySelector("#recreate-db").addEventListener("click", async () => {
-        loading.style.pointerEvents = "all";
-        loading.style.opacity = 1;
+        recreateButton: {
+            async ["@click"]() {
+                this.loading = true;
 
-        await fetch("/api/recreate", {method: "post"})
+                await fetch("/api/recreate", {method: "post"})
 
-        location.reload()
-    })
+                location.reload()
+            }
+        }
+    }))
 })

@@ -1,58 +1,53 @@
+import Alpine from "alpinejs";
+
 Alpine.data('editor', () => ({
   editorContent: '',
   output: '',
   language: 'sql',
   overlayWidth: null,
   overlayHeight: null,
+  scrollTop: 0,
+  scrollLeft: 0,
 
   overlay: {
-    [':style']() {
+    ['x-ref']: 'overlay',
+  },
 
+  runBtn: {
+    ['@click']() {
+      this.$store.results.runQuery(this.editorContent);
+    }
+  },
+
+  editor: {
+    ['x-model']: 'editorContent',
+    ['x-ref']: 'editor',
+    ['@scroll']() {
+      const editor = this.$refs.editor;
+      this.scrollTop = editor.scrollTop;
+      this.scrollLeft = editor.scrollLeft;
+    },
+    ['@input']() {
+      this.rerender()
     }
   },
 
   rerender() {
-    this.output = hljs.highlight(
+    this.output = window.hljs.highlight(
       this.editorContent,
       {language: this.language}
     ).value;
   },
 
+  resize() {
+    const {editor, overlay} = this.$refs;
+    overlay.style.width = editor.offsetWidth + 'px';
+    overlay.style.height = editor.offsetHeight + 'px';
+  },
+
   init() {
-    new ResizeObserver(() => {
-      this.overlayWidth = textArea.offsetWidth + 'px';
-      this.overlayHeight = textArea.offsetHeight + 'px';
-    }).observe(document.querySelector(this.$id('editor')));
-    this.overlayWidth = textArea.offsetWidth + 'px';
-    this.overlayHeight = textArea.offsetHeight + 'px';
+    new ResizeObserver(this.resize.bind(this)).observe(editor);
+    this.resize();
+    this.rerender();
   }
 }));
-
-export function language(component) {
-  return component.querySelector("[data-editor=language]").value
-}
-export function query(component) {
-  return component.querySelector("[data-editor=editor]").value
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("[data-component=editor]").forEach((component) => {
-    const textArea = component.querySelector("[data-editor=editor]");
-    const overlay = component.querySelector("[data-editor=overlay]");
-    textArea.addEventListener("input", rerender);
-
-    textArea.addEventListener("scroll", e => {
-      overlay.scrollTop = textArea.scrollTop;
-      overlay.scrollLeft = textArea.scrollLeft;
-    });
-
-    component
-      .querySelector("[data-editor=language]")
-      .addEventListener("change", rerender);
-  });
-});
-
-document.addEventListener('resume', () => {
-  // in case a restored browser tab prefills it
-  rerender({target: component});
-})
