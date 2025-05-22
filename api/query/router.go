@@ -83,7 +83,12 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 }
 
 func Mount() {
-	http.HandleFunc("POST /api/query", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/query", func(w http.ResponseWriter, r *http.Request) {
+		if !(r.Method == http.MethodPost || r.Method == http.MethodOptions) {
+			w.WriteHeader(405)
+			fmt.Fprint(w, "Method not allowed")
+			return
+		}
 		var params []any
 		var query string
 

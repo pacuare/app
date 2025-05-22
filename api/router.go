@@ -20,7 +20,12 @@ func Mount() {
 	auth.Mount()
 	query.Mount()
 
-	http.HandleFunc("GET /api/openapi.yml", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/openapi.yml", func(w http.ResponseWriter, r *http.Request) {
+		if !(r.Method == http.MethodGet || r.Method == http.MethodOptions) {
+			w.WriteHeader(405)
+			fmt.Fprint(w, "Method not allowed")
+			return
+		}
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Header().Add("Content-Type", "application/yaml")
 		w.WriteHeader(200)
