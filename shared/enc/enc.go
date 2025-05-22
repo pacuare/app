@@ -1,4 +1,4 @@
-package shared
+package enc
 
 import (
 	"crypto/aes"

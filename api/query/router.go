@@ -8,15 +8,17 @@ import (
 	"os"
 	"strings"
 
-	"app.pacuare.dev/shared"
+	"app.pacuare.dev/shared/auth"
+	"app.pacuare.dev/shared/db"
 	"github.com/charmbracelet/log"
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 )
 
 func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, params []any) {
-	email, err := shared.GetUser(r)
+	email := auth.GetUser(r.Context())
 
-	if err != nil {
+	if email == nil {
 		w.WriteHeader(401)
 		w.Write([]byte(`{"error":"Not authorized"}`))
 		return
@@ -25,7 +27,7 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 	// e.g. keeper@farthergate.com -> user_keeper__farthergate_com
 	var conn *pgx.Conn
 	var dbName string
-	if fullAccess, err := shared.QueryOne[bool]("select fullAccess from AuthorizedUsers where email=$1", email); err != nil {
+	if fullAccess, err := db.QueryOne[bool](r.Context(), "select fullAccess from AuthorizedUsers where email=$1", email); err != nil {
 		log.Errorf("Error querying access level: %e", err)
 
 		w.WriteHeader(500)
@@ -34,12 +36,12 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 	} else if fullAccess {
 		dbName = "pacuare_data"
 	} else {
-		dbName = shared.GetUserDatabase(*email)
+		dbName = auth.GetUserDatabase(*email)
 
 	}
 
 	dbUrl := fmt.Sprintf("%s/%s", os.Getenv("DATABASE_URL_BASE"), dbName)
-	conn, err = pgx.Connect(r.Context(), dbUrl)
+	conn, err := pgx.Connect(r.Context(), dbUrl)
 
 	if err != nil {
 		log.Errorf("Error opening database: %e", err)
@@ -79,8 +81,10 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 	w.Write([]byte("]"))
 }
 
-func Mount() {
-	http.HandleFunc("/api/query", func(w http.ResponseWriter, r *http.Request) {
+func Router() chi.Router {
+	r := chi.NewRouter()
+
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if !(r.Method == http.MethodPost || r.Method == http.MethodOptions) {
 			w.WriteHeader(405)
 			fmt.Fprint(w, "Method not allowed")
@@ -135,4 +139,6 @@ func Mount() {
 
 		queryEndpointArgs(w, r, query, params)
 	})
+
+	return r
 }

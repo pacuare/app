@@ -7,9 +7,12 @@ import (
 	"os"
 
 	"app.pacuare.dev/api"
-	"app.pacuare.dev/shared"
+	"app.pacuare.dev/shared/auth"
+	"app.pacuare.dev/shared/db"
 	"app.pacuare.dev/templates"
 	"github.com/charmbracelet/log"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -20,22 +23,29 @@ func main() {
 		log.Fatal("Failed to connect to database")
 	}
 	log.Info("Connected")
-	shared.DB = conn
 	defer conn.Close()
 
-	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
-	api.Mount()
-	http.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		returnedApiKey := r.URL.Query().Get("key")
-		email, err := shared.GetUser(r)
+	r := chi.NewRouter()
 
-		if err != nil {
+	r.Use(middleware.Logger)
+	r.Use(db.ExportDB(conn))
+	r.Use(auth.Middleware)
+
+	r.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
+
+	r.Mount("/api", api.Router())
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		returnedApiKey := r.URL.Query().Get("key")
+		email := auth.GetUser(r.Context())
+
+		if email == nil {
 			log.Error(err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 			return
 		}
 
-		fullAccess, err := shared.QueryOne[bool]("select fullAccess from AuthorizedUsers where email=$1", email)
+		fullAccess, err := db.QueryOne[bool](r.Context(), "select fullAccess from AuthorizedUsers where email=$1", email)
 
 		if err != nil {
 			log.Error(err)
@@ -45,7 +55,7 @@ func main() {
 
 		if !fullAccess {
 			if databaseExists, err :=
-				shared.QueryOne[bool]("select count(*)>0 from pg_catalog.pg_database where datname = GetUserDatabase($1)", email); !databaseExists || err != nil {
+				db.QueryOne[bool](r.Context(), "select count(*)>0 from pg_catalog.pg_database where datname = GetUserDatabase($1)", email); !databaseExists || err != nil {
 				http.Redirect(w, r, "/createdb", http.StatusSeeOther)
 				if err != nil {
 					log.Error(err)
@@ -58,28 +68,28 @@ func main() {
 	})
 
 	http.HandleFunc("GET /createdb", func(w http.ResponseWriter, r *http.Request) {
-		email, err := shared.GetUser(r)
+		email := auth.GetUser(r.Context())
 
-		if err != nil {
+		if email == nil {
 			log.Error(err)
 			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 			return
 		}
 
 		if databaseExists, _ :=
-			shared.QueryOne[bool]("select count(*)>0 from pg_catalog.pg_database where datname = GetUserDatabase($1)", email); databaseExists {
+			db.QueryOne[bool](r.Context(), "select count(*)>0 from pg_catalog.pg_database where datname = GetUserDatabase($1)", email); databaseExists {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 
 		templates.CreateDB(*email).Render(r.Context(), w)
-		_, err = shared.DB.Exec(context.Background(), fmt.Sprintf("create database %s", shared.GetUserDatabase(*email)))
+		_, err = db.DB(r.Context()).Exec(context.Background(), fmt.Sprintf("create database %s", auth.GetUserDatabase(*email)))
 
 		if err != nil {
 			log.Error(err)
 		}
 
-		db, err := shared.QueryOne[string]("select InitUserDatabase($1, $2, $3)", os.Getenv("DATABASE_URL_BASE"), os.Getenv("DATABASE_DATA"), *email)
+		db, err := db.QueryOne[string](r.Context(), "select InitUserDatabase($1, $2, $3)", os.Getenv("DATABASE_URL_BASE"), os.Getenv("DATABASE_DATA"), *email)
 
 		if err != nil {
 			log.Error(err)

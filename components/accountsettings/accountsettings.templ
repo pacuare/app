@@ -8,10 +8,10 @@ import "app.pacuare.dev/components/card"
 import "app.pacuare.dev/components/modal"
 import "app.pacuare.dev/components/tooltip"
 import "app.pacuare.dev/components/spinner"
-import "app.pacuare.dev/shared"
 import "context"
 import "app.pacuare.dev/components/alert"
 import "app.pacuare.dev/components/input"
+import "app.pacuare.dev/shared/db"
 import . "github.com/icza/gox/gox"
 
 templ AccountSettings(email string, fullAccess bool, returnedApiKey string, triggerProps drawer.TriggerProps) {
@@ -111,7 +111,7 @@ templ AccountSettings(email string, fullAccess bool, returnedApiKey string, trig
                                     Your new API key is <code>{returnedApiKey}</code>. Please keep track of it, as it will not be shown again. 
                                 }
                             }
-                            {{ keys, err := shared.DB.Query(context.Background(), "select id, description, to_char(createdOn, 'YYYY-MM-DD') as createdOn from APIKeys where email = $1 order by createdOn asc", email) }}
+                            {{ keys, err := db.DB(ctx).Query(context.Background(), "select id, description, to_char(createdOn, 'YYYY-MM-DD') as createdOn from APIKeys where email = $1 order by createdOn asc", email) }}
                             if err != nil {
                                 @alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {Error fetching API keys}
                             } else {

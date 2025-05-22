@@ -1,4 +1,4 @@
-package auth
+package authroutes
 
 import (
 	"encoding/hex"
@@ -7,15 +7,18 @@ import (
 	"strings"
 	"time"
 
-	"app.pacuare.dev/api/auth/mailer"
-	"app.pacuare.dev/shared"
+	"app.pacuare.dev/api/authroutes/mailer"
+	"app.pacuare.dev/shared/db"
+	"app.pacuare.dev/shared/enc"
 	"app.pacuare.dev/templates"
 	"github.com/charmbracelet/log"
+	"github.com/go-chi/chi/v5"
 )
 
-func Mount() {
-	conn := shared.DB
-	http.HandleFunc("GET /auth/login", func(w http.ResponseWriter, r *http.Request) {
+func Router() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
 		failedEmail := r.URL.Query().Get("failed-email")
 		var pFailedEmail *string = nil
 
@@ -26,10 +29,10 @@ func Mount() {
 		templates.Login(pFailedEmail).Render(r.Context(), w)
 	})
 
-	http.HandleFunc("GET /auth/verify", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/verify", func(w http.ResponseWriter, r *http.Request) {
 		email := r.URL.Query().Get("email")
 
-		hasUser, err := shared.QueryOne[bool]("select (count(*) > 0) from AuthorizedUsers where email=$1", email)
+		hasUser, err := db.QueryOne[bool](r.Context(), "select (count(*) > 0) from AuthorizedUsers where email=$1", email)
 
 		if err != nil {
 			log.Error(err)
@@ -38,7 +41,7 @@ func Mount() {
 		if !hasUser {
 			http.Redirect(w, r, fmt.Sprintf("/auth/login?failed-email=%s", email), http.StatusSeeOther)
 		} else {
-			_, err := mailer.SendConfirmation(conn, email)
+			_, err := mailer.SendConfirmation(db.DB(r.Context()), email)
 
 			if err != nil {
 				log.Errorf("Error creating verification code for %s", email)
@@ -64,7 +67,7 @@ func Mount() {
 
 		log.Infof("%s %s", email, inputCode)
 
-		code, err := shared.QueryOne[string]("select code from LoginCodes where email=$1", email)
+		code, err := db.QueryOne[string](r.Context(), "select code from LoginCodes where email=$1", email)
 
 		if err != nil {
 			log.Error(err)
@@ -73,7 +76,7 @@ func Mount() {
 		}
 
 		if strings.EqualFold(code, inputCode) {
-			enc, err := shared.Encrypt([]byte(email))
+			enc, err := enc.Encrypt([]byte(email))
 			if err != nil {
 				log.Error(err)
 				http.Redirect(w, r, fmt.Sprintf("/auth/login?failed-email=%s&login-failed", email), http.StatusSeeOther)
@@ -86,8 +89,10 @@ func Mount() {
 		}
 	})
 
-	http.HandleFunc("GET /auth/logout", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{Name: "AuthStatus", Path: "/", Expires: time.Unix(0, 0)})
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
+
+	return r
 }
