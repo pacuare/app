@@ -1,0 +1,60 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Pacuare API
+  description: An API to interface with Pacuare Reserve's turtle census data.
+
+servers:
+  - url: https://app.pacuare.dev/api
+
+security:
+  BearerAuth: []
+
+paths:
+  /query:
+    post:
+      description: Queries the database with SQL.
+      requestBody:
+        required: true
+        content:
+          text/sql:
+            description: A plain SQL query.
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                params:
+                  type: array
+        responses:
+          '200':
+            description: Successfully queried the database.
+            content:
+              application/json:
+                schema:
+                  type: array
+          '400':
+            description: Not authorized.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+          '500':
+            description: Internal server error.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
