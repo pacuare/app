@@ -42,7 +42,7 @@ func Mount() {
 		email, err := shared.GetUser(r)
 
 		if err != nil {
-			w.WriteHeader(400)
+			w.WriteHeader(401)
 			w.Write([]byte("Not authorized"))
 			return
 		}
@@ -63,7 +63,7 @@ func Mount() {
 		email, err := shared.GetUser(r)
 
 		if err != nil {
-			w.WriteHeader(400)
+			w.WriteHeader(401)
 			w.Write([]byte("Not authorized"))
 			return
 		}

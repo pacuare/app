@@ -17,7 +17,7 @@ func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, par
 	email, err := shared.GetUser(r)
 
 	if err != nil {
-		w.WriteHeader(400)
+		w.WriteHeader(401)
 		w.Write([]byte(`{"error":"Not authorized"}`))
 		return
 	}
