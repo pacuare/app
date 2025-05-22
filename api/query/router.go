@@ -88,14 +88,14 @@ func Mount() {
 		}
 
 		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Access-Control-Allow-Headers", "*")
+		w.Header().Add("Content-Type", "application/json")
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(200)
 			w.Write([]byte(`{"preflight": "ok"}`)) // send the preflight on its way before we hit logic
 			return
 		}
-
-		w.Header().Add("Content-Type", "application/json")
 
 		var params []any
 		var query string
