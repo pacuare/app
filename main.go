@@ -40,8 +40,8 @@ func main() {
 		email := auth.GetUser(r.Context())
 
 		if email == nil {
-			log.Error(err)
-			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			log.Error("Unauthorized")
+			http.Redirect(w, r, "/api/auth/login", http.StatusSeeOther)
 			return
 		}
 
@@ -49,14 +49,14 @@ func main() {
 
 		if err != nil {
 			log.Error(err)
-			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/api/auth/login", http.StatusSeeOther)
 			return
 		}
 
 		if !fullAccess {
 			if databaseExists, err :=
 				db.QueryOne[bool](r.Context(), "select count(*)>0 from pg_catalog.pg_database where datname = GetUserDatabase($1)", email); !databaseExists || err != nil {
-				http.Redirect(w, r, "/createdb", http.StatusSeeOther)
+				http.Redirect(w, r, "/api/createdb", http.StatusSeeOther)
 				if err != nil {
 					log.Error(err)
 				}
@@ -71,8 +71,8 @@ func main() {
 		email := auth.GetUser(r.Context())
 
 		if email == nil {
-			log.Error(err)
-			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			log.Error("Unauthorized")
+			http.Redirect(w, r, "/api/auth/login", http.StatusSeeOther)
 			return
 		}
 
