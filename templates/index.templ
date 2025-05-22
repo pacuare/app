@@ -95,7 +95,7 @@ templ Index(email string, fullAccess bool, returnedApiKey string) {
 							</template>
 							<template x-if="!('error' in $store.results.currentResults)">
 								@table.Table(table.Props{Class: "h-full max-h-full max-w-full caption-top"}) {
-									@table.Caption(table.CaptionProps{Class: "block fixed bottom-3 left-[50%] -translate-x-1/2 p-2 rounded backdrop:blur-md"}) {
+									@table.Caption(table.CaptionProps{Class: "block fixed bottom-4 left-[50%] -translate-x-1/2 p-2 rounded", Attributes: templ.Attributes{"style": "backdrop-filter: blur(10px)"}}) {
 										<span x-text="$store.results.currentResults.length"/> rows in result
 									}
 

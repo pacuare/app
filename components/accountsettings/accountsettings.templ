@@ -227,7 +227,7 @@ templ AccountSettings(email string, fullAccess bool, returnedApiKey string, trig
             }
         }
 
-        <div class="absolute top-0 left-0 w-screen h-screen z-20 backdrop-blur-md bg-white/50 items-center justify-center transition-all flex" :style="{'pointer-events': loading ? 'all' : 'none', 'opacity': loading ? 1 : 0}">
+        <div class="absolute top-0 left-0 w-screen h-screen z-20 backdrop-blur-md bg-[var(--body-background-fill)]/50 items-center justify-center transition-all flex" :style="{'pointer-events': loading ? 'all' : 'none', 'opacity': loading ? 1 : 0, 'backdrop-filter': 'blur(10px)'}">
             @spinner.Spinner(spinner.Props{Size: spinner.SizeLg})
         </div>
     </div>
