@@ -16,9 +16,6 @@ import (
 func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, params []any) {
 	email, err := shared.GetUser(r)
 
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Content-Type", "application/json")
-
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write([]byte(`{"error":"Not authorized"}`))
@@ -89,6 +86,16 @@ func Mount() {
 			fmt.Fprint(w, "Method not allowed")
 			return
 		}
+
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Content-Type", "application/json")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(200)
+			w.Write([]byte(`{"preflight": "ok"}`)) // send the preflight on its way before we hit logic
+			return
+		}
+
 		var params []any
 		var query string
 
