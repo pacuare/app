@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,9 +13,19 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+//go:embed openapi.yml
+var apiSpec string
+
 func Mount() {
 	auth.Mount()
 	query.Mount()
+
+	http.HandleFunc("GET /api/openapi.yml", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Content-Type", "application/yaml")
+		w.WriteHeader(200)
+		fmt.Fprint(w, apiSpec)
+	})
 
 	http.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")

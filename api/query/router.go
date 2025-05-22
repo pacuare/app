@@ -16,13 +16,14 @@ import (
 func queryEndpointArgs(w http.ResponseWriter, r *http.Request, query string, params []any) {
 	email, err := shared.GetUser(r)
 
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Content-Type", "application/json")
+
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write([]byte(`{"error":"Not authorized"}`))
 		return
 	}
-
-	w.Header().Add("Content-Type", "application/json")
 
 	// e.g. keeper@farthergate.com -> user_keeper__farthergate_com
 	var conn *pgx.Conn
